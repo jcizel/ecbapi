@@ -1,0 +1,159 @@
+library(shinyAce)
+library(pipeR)
+library(rlist)
+library(htmltools)
+library(data.table)
+library(xts)
+library(dygraphs)
+library(dplyr)
+library(ggvis)
+library(ggplot2)
+library(ggthemes)
+library(stringr)
+
+library(ecbapi)
+
+PATH = '/Users/jankocizel/Data/ECB Data'
+
+
+## load(file = sprintf('%s/all_data.RData',PATH))
+load(file = sprintf('%s/rir.RData',PATH))
+
+## list.files(PATH)[1:5] %>>%
+## setdiff(c('all_data.RData','ameco.RData')) %>>%
+## list.map({
+##     file = sprintf('%s/%s',PATH,.)
+##     message(sprintf('Loading: %s',file))
+    
+##     load(file = file,
+##          envir = .GlobalEnv)
+## })
+
+
+## list.files(PATH) %>>%
+## gsub(
+##     pattern = '(.+)\\.RData',
+##     replacement = '\\1'
+## ) ->
+##     datasets_names
+
+
+## save(list = c(
+##          sprintf('%s_static', datasets_names),
+##          sprintf('%s_data', datasets_names)
+## ), file = sprintf('%s/all_data.RData', PATH))
+
+
+datasets <- get_datasets()
+datasets[, id2 := {
+    id %>>%
+    gsub(
+        pattern = '(ECB_)(.+)([0-9]{1})',
+        replacement = '\\2'
+    ) %>>% tolower
+}]
+
+dataset_choices <- local({
+    x <- datasets$id2 %>>% as.character
+    names(x) <- datasets$name %>>% as.character
+    x
+})
+
+
+ui <- shinyUI(fluidPage(fluidRow(
+    column(
+        width = 4,
+        tags$br(),
+        h2('Dataset'),
+        selectizeInput(
+            'dataset',
+            'Select dataset:',
+            choices = dataset_choices
+        ),
+        hr(),
+        h2('Dimensions:'),
+        uiOutput('ui-params')        
+    ),
+    column(
+        width = 8,
+        dataTableOutput('data')
+    ),
+    tags$br(),
+    hr()   
+)))
+
+
+server <- function(input, output, session){
+    static <- reactive({
+        input[['dataset']] %>>% sprintf(fmt = '%s_static') %>>% get
+    })
+    
+    vars_attrs <- reactive({
+        static() %>>%
+        names %>>%
+        gsub(pattern = ".+\\[(CL_)(.+)\\]", replacement = '\\2')
+    })
+
+    data <- reactive({       
+        dt <- get(sprintf('%s_data',input[['dataset']]))
+        dt
+        ## vars_attrs() %>>%
+        ## intersect(dt %>>% names) ->
+        ##     vars
+
+        ## message('Attribute variables consist of the following:')
+        ## message(vars %>>% paste(collapse = ', '))
+                
+        
+        ## vars %>>%
+        ## list.map({
+        ##     message(sprintf('%s equals:', .))
+        ##     message(input[[sprintf('ATTR_',.)]] %>>% paste(collapse = ', '))
+            
+        ##     ((dt[[.]] %>>% as.character) %in%
+        ##      (input[[sprintf('ATTR_',.)]] %>>% as.character))*1
+        ## }) %>>%
+        ## (? . %>>% str) %>>%
+        ## Reduce(
+        ##     f = '+'
+        ## ) %>>%
+        ## ({
+        ##     (. > 0)
+        ## }) ->
+        ##     COND
+        
+        ## dt[COND == TRUE]
+    })    
+    
+    output[['ui-params']] <- renderUI({                
+        static() %>>%
+        list.map({
+            code <- .name %>>% gsub(pattern = ".+\\[(CL_)(.+)\\]", replacement = '\\2')
+            
+            choices = .$id
+            names(choices) = sprintf('%s [%s]',.$name, .$id)
+
+            choices[choices %in% data()[[code]]]
+            
+            selectizeInput(
+                inputId = sprintf('ATTR_%s',code),
+                label = sprintf('%s, CODE: %s',.name,code),
+                choices = choices,
+                selected = choices,
+                multiple = TRUE
+            )
+        }) ->
+            out
+
+        names(out) <- NULL
+
+        out
+    })
+    
+    output[['data']] <- renderDataTable({
+        data()
+    })
+}
+
+
+shinyApp(ui = ui, server = server)

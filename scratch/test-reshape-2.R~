@@ -1,0 +1,165 @@
+options(width = 80)
+
+PATH = '/Users/jankocizel/cizel/Data/ECB Data'
+load(file = sprintf('%s/all_data.RData',PATH))
+
+
+data <- ivf_data %>>% copy
+static <- ivf_static %>>% copy
+
+static_names_old <- static %>>% names
+
+names(static) <- static %>>% names %>>%
+gsub(pattern = ".+\\[(CL_)(.+)\\]", replacement = '\\2')
+
+
+
+data %>>% names %>>% dput
+static %>>% names
+
+c("UNIT_MULT", "DECIMALS", "UNIT", "COLLECTION", 
+  "FREQ", "REF_AREA", "ADJUSTMENT", "IVF_REP_SECTOR", "IVF_ITEM", 
+  "MATURITY_ORIG", "DATA_TYPE", "COUNT_AREA", "BS_COUNT_SECTOR", 
+  "CURRENCY_TRANS", "BS_SUFFIX", "date") %>>%
+list.map({
+    message(.)
+    data[[.]] %>>% table
+})
+
+
+data %>>% names
+
+data %>>% (UNIT_MULT) %>>% table
+data %>>% (DECIMALS) %>>% table
+data %>>% (UNIT) %>>% table
+data %>>% (COLLECTION) %>>% table
+
+## Choice
+data %>>% (FREQ) %>>% table
+data %>>% (REF_AREA) %>>% table         #!!!!
+data %>>% (ADJUSTMENT) %>>% table
+
+## Variables
+data %>>% (IVF_REP_SECTOR) %>>% table   #!!!!
+data %>>% (IVF_REP_SECTOR) %>>% (static[['IVF_REP_SECTOR']][.]) %>>% unique
+
+data %>>% (IVF_ITEM) %>>% table
+data %>>% (IVF_ITEM) %>>% (static[['IVF_ITEM']][.]) %>>% unique
+
+data %>>% (MATURITY_ORIG) %>>% table
+data %>>% (MATURITY_ORIG) %>>% (static[['MATURITY_ORIG']][.]) %>>% unique
+
+data %>>% (DATA_TYPE) %>>% table
+data %>>% (DATA_TYPE) %>>% (static[['DATA_TYPE']][.]) %>>% unique
+
+data %>>% (COUNT_AREA) %>>% table
+data %>>% (COUNT_AREA) %>>% (static[['AREA_EE']][.]) %>>% unique
+
+data %>>% (BS_COUNT_SECTOR) %>>% table
+data %>>% (BS_COUNT_SECTOR) %>>% (static[['BS_COUNT_SECTOR']][.]) %>>% unique
+
+data %>>% (BS_SUFFIX) %>>% table
+data %>>% (BS_SUFFIX) %>>% (static[['BS_SUFFIX']][.]) %>>% unique
+
+data %>>% (CURRENCY_TRANS) %>>% table %>>% as.data.table %>>%
+setnames(old = '.', new = 'id') %>>%
+setkey(id) %>>%
+(static[['CURRENCY']][.]) %>>%
+arrange(-N)
+
+data %>>% (CURRENCY_TRANS) %>>% (static[['CURRENCY']][.]) %>>% unique
+
+
+data = data
+var = 'CURRENCY_TRANS'
+static = static
+
+summarize_attribute <- function(
+    data = NULL,
+    var = NULL,
+    static = NULL
+){
+    static %>>% names -> n
+
+    ## Find the lookup table with matching information
+    n %>>%
+    list.map({
+        grepl(
+            pattern = .,
+            x = var
+        ) ->
+            o
+        list(condition = o)
+    }) %>>%
+    list.filter(condition == TRUE) %>>%
+    names ->
+        lookup_table_name
+
+    ## If the lookup table not found, join all lookup info together, and use
+    ## this as the lookup
+    if (length(lookup_table_name) == 0){
+        message('Matching lookup table not found. Looking up information in all static tables...')
+        static %>>%
+        rbindlist %>>%
+        setkey(id) %>>%
+        unique ->
+            lookup_table_new
+
+        data %>>% (.[[var]]) %>>% table %>>% as.data.table %>>%
+        setnames(old = '.', new = 'id') %>>%
+        setkey(id) %>>%
+        (lookup_table_new[.]) %>>%
+        arrange(-N) ->
+            out        
+    } else if (length(lookup_table_name) > 1 ){
+        lookup_table_name %>>%
+        sprintf(fmt = "^%s$") %>>%
+        list.map({
+            grepl(
+                pattern = .,
+                x = var
+            ) ->
+                o
+            list(condition = o)
+        }) %>>%
+        list.filter(condition == TRUE) %>>%
+        names %>>%
+        gsub(pattern = '(\\^)(.+)\\$', replacement = '\\2')->
+            lookup_table_name_2
+
+        data %>>% (.[[var]]) %>>% table %>>% as.data.table %>>%
+        setnames(old = '.', new = 'id') %>>%
+        setkey(id) %>>%
+        (static[[lookup_table_name_2]][.]) %>>%
+        arrange(-N) ->
+            out                
+    }
+    else if (length(lookup_table_name) == 1) {
+        data %>>% (.[[var]]) %>>% table %>>% as.data.table %>>%
+        setnames(old = '.', new = 'id') %>>%
+        setkey(id) %>>%
+        (static[[lookup_table_name]][.]) %>>%
+        arrange(-N) ->
+            out        
+    }   
+
+    return(out)
+}
+
+
+
+data %>>% names %>>%
+grep(
+    pattern = 'TITLE',
+    value = TRUE
+) ->
+    var_title
+
+data %>>%
+names %>>%
+setdiff(
+    c(var_title, 'date', 'value')
+) %>>%
+list.map({
+    summarize_attribute(data = data, var=., static = static)
+})

@@ -1,0 +1,296 @@
+library(data.table)
+library(rlist)
+library(pipeR)
+library(httr)
+library(jsonlite)
+library(xml2)
+library(rsdmx)
+library(RCurl)
+
+url <- 'https://sdw-wsrest.ecb.europa.eu/service/data/EXR/M.USD.EUR.SP00.A'
+
+doc <- readSDMX(url) 
+
+doc %>>%
+str(2)
+
+doc %>>%
+as.data.frame %>>%
+data.table ->
+    data
+
+
+url <- 'https://sdw-wsrest.ecb.europa.eu/service/data/EXR/'
+
+doc <- readSDMX(url) 
+
+doc %>>%
+str(2)
+
+doc %>>%
+as.data.frame %>>%
+data.table ->
+    data
+
+## -------------------------------------------------------------------------- ##
+## Get all codelists                                                          ##
+## -------------------------------------------------------------------------- ##
+url = 'https://sdw-wsrest.ecb.europa.eu/service/codelist?detail=allstubs'
+
+doc <- readSDMX(url) 
+
+doc %>>%
+as.data.frame %>>%
+data.table ->
+    data
+
+
+doc %>>%
+(codelists) %>>%
+list.map({
+    . %>>%
+    ({
+        x <- .
+        x %>>% slotNames %>>%
+        list.map({
+            slot(x,.) %>>% unlist
+        }) %>>%
+        list.filter(!is.null(.)) %>>%
+        as.data.frame %>>%
+        data.table
+    })  
+}) %>>%
+rbindlist(fill = TRUE) ->
+    o
+
+o %>>% (Name)
+o %>>% (agencyID) %>>% unique
+
+resource = 'structure'
+o[, query := sprintf('https://sdw-wsrest.ecb.europa.eu/service/%s/%s/%s/%s?detail=allstubs',
+              resource,
+              agencyID,
+              id,
+              version)]
+
+o$query %>>%
+list.map({
+    readSDMX(.) %>>%
+    as.data.frame
+}) ->
+    o2
+
+str(o2,1)
+
+url <- 'https://sdw-wsrest.ecb.europa.eu/service/structure/IMF/CL_VALUATION/1.0?detail=allstubs'
+doc <- readSDMX(url)
+
+doc %>>% as.data.frame
+
+
+url = 'https://sdw-wsrest.ecb.europa.eu/service/dataflow/ECB'
+url = 'https://sdw-wsrest.ecb.europa.eu/service/datastructure/ECB/all/latest'
+doc <- readSDMX(url)
+doc <- getURL(url)
+
+
+doc <- xml2::read_xml(url)
+xml_children(doc)
+xml_structure(doc)
+xml_ns(doc)
+xml_name(doc)
+
+
+doc %>>%
+xml_children %>>%
+list.map({
+    . %>>% xml_children %>>% xml_name
+})
+
+ns <- xml_ns(doc)
+doc %>>% xml_structure
+doc %>>% xml_find_all('//str:DataStructure', ns = ns) ->
+    nodes
+
+nodes %>>% 
+list.map({
+    . %>>% xml_structure
+})
+
+
+nodes[[1L]] %>>% xml_structure
+nodes[[1L]] %>>% xml_attrs
+nodes[[1L]] %>>% xml_find_all('//com:Name',ns = ns)
+
+nodes %>>% xml_find_all('//com:Name',ns = ns) %>>% xml_text
+
+nodes %>>% xml_attrs %>>%
+list.map({
+    . %>>% as.list %>>% as.data.frame %>>% data.table
+}) %>>% rbindlist(fill = TRUE) ->
+    static
+
+static[, label := {
+    nodes %>>% xml_find_all('//com:Name',ns = ns) %>>% xml_text
+}]
+
+
+## Download data
+url = 'https://sdw-wsrest.ecb.europa.eu/service/data/AME'
+doc <- readSDMX(url)
+doc %>>% as.data.frame %>>% data.table ->
+    o
+
+doc <- xml2::read_xml(url)
+
+options(width = 120)
+static[,list(id,label)]
+
+url = 'https://sdw-wsrest.ecb.europa.eu/service/data/IVF'
+doc <- readSDMX(url)
+doc %>>% as.data.frame %>>% data.table ->
+    ogma
+o$TITLE %>>% unique
+
+doc <- xml2::read_xml(url)
+
+ns <- xml_ns(doc)
+doc %>>% xml_children %>>% (.[[2L]]) %>>% xml_children
+doc %>>% xml_structure
+doc %>>% xml_attrs
+doc %>>% xml_find_all('.//generic:Series',ns = ns) ->
+    nodes
+
+nodes %>>% str(1)
+nodes[[2L]] %>>% xml_children
+nodes[[2L]] %>>% xml_structure
+nodes[[2L]] %>>% xml_find_all('./generic:SeriesKey/generic:Value',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Attributes/generic:Value',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Obs',ns = ns) %>>% xml_structure
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:ObsDimension',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:ObsValue',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:Attributes',ns = ns) %>>% xml_attrs
+
+
+
+nodes %>>% xml_find_all('//generic:Obs',ns = ns)
+nodes %>>% xml_find_all('//generic:SeriesKey',ns = ns)
+
+nodes[[1L]] %>>% xml_structure
+
+nodes[[1L]] %>>%
+xml_find_all('.//generic:SeriesKey',ns = ns) %>>%
+xml_find_all('.//generic:Value',ns = ns) %>>%
+xml_attrs %>>%
+list.map({
+    . %>>% as.list %>>% as.data.table
+}) %>>%
+rbindlist
+
+nodes[[1L]] %>>%
+xml_find_all('.//generic:Attributes',ns = ns) %>>%
+xml_find_all('.//generic:Value',ns = ns) %>>%
+xml_attrs %>>%
+list.map({
+    o <- .[['value']]
+    names(o) <- .[['id']]
+    o
+}) %>>%
+do.call(what = 'c') %>>%
+as.list %>>% as.data.table
+
+
+
+idvaluelist2dt <- function(l){
+    l %>>%
+    list.map({
+        o <- try(.[['value']])
+        if (inherits(o,'try-error'))
+            o <- NA
+        
+        names(o) <- try(.[['id']])
+        if (inherits(names(o),'try-error'))
+            names(o) <- 'Unknown'        
+        o
+    }) %>>%
+    do.call(what = 'c') %>>%
+    as.list %>>% as.data.table
+}
+
+
+doc <- xml2::read_xml(url)
+
+ns <- xml_ns(doc)
+doc %>>% xml_find_all('.//generic:Series',ns = ns) ->
+    nodes
+nodes %>>% str(1)
+nodes[[2L]] %>>% xml_children
+nodes[[2L]] %>>% xml_structure
+nodes[[2L]] %>>% xml_find_all('./generic:SeriesKey/generic:Value',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Attributes/generic:Value',ns = ns) %>>% xml_attrs -> l
+nodes[[2L]] %>>% xml_find_all('./generic:Obs',ns = ns) %>>% xml_structure
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:ObsDimension',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:ObsValue',ns = ns) %>>% xml_attrs
+nodes[[2L]] %>>% xml_find_all('./generic:Obs/generic:Attributes',ns = ns) %>>% xml_attrs
+
+l %>>% idvaluelist2dt
+
+nodes %>>% 
+list.map({
+    cat(sprintf('Processed node %s out of %s\n',.i, length(nodes)))
+
+    . %>>%
+    xml_find_all('./generic:Attributes/generic:Value',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map({
+        l <- .
+        o <- l[[2L]]
+        names(o) <- l[[1L]]    
+        o 
+    }) %>>% do.call(what = 'c') %>>%
+    as.list %>>% as.data.table ->
+        part1
+
+    . %>>%
+    xml_find_all('./generic:SeriesKey/generic:Value',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map({
+        l <- .
+        o <- l[[2L]]
+        names(o) <- l[[1L]]    
+        o 
+    }) %>>% do.call(what = 'c') %>>%
+    as.list %>>% as.data.table ->
+        part2
+
+    . %>>%
+    xml_find_all('./generic:Obs/generic:ObsDimension',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map(value) %>>%
+    unlist ->
+        part3
+
+    . %>>%
+    xml_find_all('./generic:Obs/generic:ObsValue',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map(value) %>>%
+    unlist ->
+        part4         
+
+    cbind(part1, part2, date = part3, value = part4)
+}) %>>% rbindlist(fill = TRUE) ->
+    test
+
+test %>>% (date) %>>% table
+
+
+out %>>% (TITLE) %>>% unique
+
+out %>>%
+list.map({
+    l <- .
+    o <- l[[2L]]
+    names(o) <- l[[1L]]    
+    o 
+}) %>>% do.call(what = 'c') %>>%
+as.list %>>% as.data.table

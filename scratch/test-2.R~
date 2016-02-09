@@ -1,0 +1,45 @@
+nodes %>>% 
+list.map({
+    cat(sprintf('Processed node %s out of %s\n',.i, length(nodes)))
+
+    . %>>%
+    xml_find_all('./generic:Attributes/generic:Value',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map({
+        l <- .
+        o <- l[[2L]]
+        names(o) <- l[[1L]]    
+        o 
+    }) %>>% do.call(what = 'c') %>>%
+    as.list %>>% as.data.table ->
+        part1
+
+    . %>>%
+    xml_find_all('./generic:SeriesKey/generic:Value',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map({
+        l <- .
+        o <- l[[2L]]
+        names(o) <- l[[1L]]    
+        o 
+    }) %>>% do.call(what = 'c') %>>%
+    as.list %>>% as.data.table ->
+        part2
+
+    . %>>%
+    xml_find_all('./generic:Obs/generic:ObsDimension',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map(value) %>>%
+    unlist ->
+        part3
+
+    . %>>%
+    xml_find_all('./generic:Obs/generic:ObsValue',ns = ns) %>>%
+    xml_attrs %>>% as.list %>>%
+    list.map(value) %>>%
+    unlist ->
+        part4         
+
+    cbind(part1, part2, date = part3, value = part4)
+}) %>>% rbindlist(fill = TRUE) ->
+    test

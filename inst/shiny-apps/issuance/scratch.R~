@@ -1,0 +1,14 @@
+
+dt = bls_data
+static = bls_static
+
+vars <-  c("BANK_SELECTION", "BLS_AGG_METHOD", "BLS_COUNT", "BLS_ITEM",      
+           "COLLECTION", "DECIMALS", "EFFECT_DOMAIN",  "FREQ", "MARKET_ROLE",
+           "TIME_HORIZON",   "UNIT", "UNIT_MULT")
+
+
+
+vars %>>%
+list.map({
+    
+})
