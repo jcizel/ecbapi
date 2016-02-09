@@ -1,3 +1,12 @@
+##' Utility function to download multiple series
+##'
+##' Download multiple series
+##' @title Download multiple series
+##' @param dataset 
+##' @param series_ids 
+##' @return 
+##' @author Janko Cizel
+##' @export
 get_multiple_series <- function(dataset,series_ids){
   
   series_ids %>>%

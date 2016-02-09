@@ -1,4 +1,12 @@
-# Supply URL of datastructure (go to SDW, choose DB, check its metadata, and copy paste the DSD hyperlink)
+##' get_datastructure: Get SDMX datastructure of the dataset
+##'
+##' 
+##' @title Get SDMX datastructure of the dataset at ECB SDW
+##' @param url URL of SDMX datastructure (available at SDW)
+##' @return Returns a list of lookup tables for each of the dimensions in the
+##'     data structure
+##' @author Janko Cizel
+##' @export
 get_datastructure <- function(url = "https://sdw-wsrest.ecb.europa.eu/service/datastructure/ESTAT/NA_SEC"){
  
   doc = read_xml(url)
@@ -45,10 +53,22 @@ get_datastructure <- function(url = "https://sdw-wsrest.ecb.europa.eu/service/da
   )
 }
 
+# Supply URL of datastructure (go to SDW, choose DB, check its metadata, and copy paste the DSD hyperlink)
+
+
+
 #get_datastructure() -> lookup
-# get_datastructure(url = 'https://sdw-ecb-wsrest.ecb.de/service/datastructure/ECB/ECB_AME1') -> dsd_ameco
+# get_datastructure(url = 'https://sdw-wsrest.ecb.europa.eu/service/datastructure/ECB/ECB_AME1') -> dsd_ameco
 # get_datastructure(url = 'https://sdw-ecb-wsrest.ecb.de/service/datastructure/ECB/ECB_SHS6') -> dsd_shs
 
+##' Utility function to obtain codelists
+##'
+##
+##
+##' @param lookup 
+##' @return 
+##' @author Janko Cizel
+##' @export
 get_codelists <- function(lookup){
     sprintf("%s/%s/%s/%s",
             "https://sdw-wsrest.ecb.europa.eu/service/codelist",

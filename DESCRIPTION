@@ -1,17 +1,20 @@
 Package: ecbapi
-Title: European Central Bank Statistical Data Warehouse API
+Title: API to the ECB's Statistical Data Warehouse (SDW)
 Version: 0.1.0
 Authors@R: person("Janko", "Cizel", , "jcizel@gmail.com", role = c("aut", "cre"))
 Maintainer: Janko Cizel <jcizel@gmail.com>
-Description: The package provides an access to the European Central Bank Statistical Data Warehouse (SDW) databases.
-Depends: R (>= 3.1.1),
-	 RCurl,
-	 xml2,
-	 data.table,
-	 pipeR,
-	 rlist,
-	 dplyr
+Description: The package provides an access to the European Central Bank
+    Statistical Data Warehouse (SDW) databases.
+Depends:
+    R (>= 3.1.1),
+    RCurl,
+    xml2,
+    data.table,
+    pipeR,
+    rlist,
+    dplyr
 License: What license is it under?
 LazyData: true
-Imports: data.table
-
+Imports:
+    data.table
+RoxygenNote: 5.0.1
