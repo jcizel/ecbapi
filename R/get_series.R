@@ -11,7 +11,8 @@ get_series <- function(
   dataset = 'AME',
   series_id = "......ZUTN"
 ){
-  url = sprintf("https://sdw-ecb-wsrest.ecb.de/service/data/%s/%s",
+    url = sprintf(## "https://sdw-ecb-wsrest.ecb.de/service/data/%s/%s",
+                  "https://sdw-wsrest.ecb.europa.eu/service/data/%s/%s",
                 dataset,
                 series_id)
   

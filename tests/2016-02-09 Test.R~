@@ -1,0 +1,4 @@
+require(ecbapi)
+
+
+## Get all datasets provided by the ECB

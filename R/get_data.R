@@ -10,7 +10,7 @@
 get_data <- function(
     dataset = 'AME'
 ){
-    url = sprintf("https://sdw-ecb-wsrest.ecb.de/service/data/%s",
+    url = sprintf("https://sdw-wsrest.ecb.europa.eu/service/data/%s",
         dataset)
 
     download_file <- getURL(url,ssl.verifypeer = FALSE)

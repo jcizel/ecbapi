@@ -7,7 +7,7 @@
 get_datasets <- function(
     source = 'ECB'
 ){
-    sprintf('https://sdw-ecb-wsrest.ecb.de/service/datastructure/%s/all/latest',
+    sprintf('https://sdw-wsrest.ecb.europa.eu/service/datastructure/%s/all/latest',
             source) ->
                 url
     

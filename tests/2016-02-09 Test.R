@@ -1,0 +1,21 @@
+require(ecbapi)
+
+## Get all available datasets provided by the ECB
+get_datasets(source = 'ECB')
+
+##                  id agencyID                                                             name
+##  1:        ECB_AME1      ECB                                                            AMECO
+##  2:        ECB_BKN1      ECB                                             Banknotes Statistics
+##  3:        ECB_BLS1      ECB                                   Bank Lending Survey Statistics
+##  4:        ECB_BOP1      ECB        Balance of Payments, I.I.P. and Reserve Assets Statistics
+##  5:        ECB_BSI1      ECB                                              Balance Sheet Items
+##  6:        ECB_CBD1      ECB                          Statistics on Consolidated Banking Data
+##  7:        ECB_CBD2      ECB                          Statistics on Consolidated Banking Data
+##  8:        ECB_CCP1      ECB                         Central Counterparty Clearing Statistics
+##  9:        ECB_CPP3      ECB                             Commercial property price statistics
+## 10:        ECB_DCM1      ECB                                                         Dealogic
+## ....
+
+## Get desired dataset
+get_dataset(dataset = 'AME') ->
+    dt
