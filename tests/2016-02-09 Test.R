@@ -17,5 +17,54 @@ get_datasets(source = 'ECB')
 ## ....
 
 ## Get desired dataset
-get_dataset(dataset = 'AME') ->
-    dt
+get_data(dataset = 'AME') ->
+    data
+
+## Get data structure definition
+##
+## Instructions:
+##  - go to http://sdw.ecb.europa.eu
+##  - click "Site Map"
+##  - text search "ameco"
+##  - follow the link "AME - AMECO"
+##  - click "DSD" link at the top half of the page
+##  - click "Download SDMX 2.1 Schema of the ECB_AME1 DSD"
+##  - copy the resulting URL and paste it as the argument of the
+##"get_datastructure" function
+
+get_datastructure(url = "https://sdw-wsrest.ecb.europa.eu/service/datastructure/ECB/ECB_AME1") ->
+    dsd
+
+
+idref <- (dsd[[1L]] %>>% (varcode))
+
+for (x in idref){
+    dsd[[2L]][[dsd[[1L]][varcode == x][['codelist']]]] ->
+        lookup
+    
+(lookup %>>%
+ setkey(id))[data %>>%
+                 setkeyv(x)] %>>%
+    setnames(
+        old = c('id','name'),
+        new = c(x,sprintf("%s_label",x))
+    ) ->
+    o
+    
+    o ->
+        data
+
+    data[[sprintf("%s_label",x)]] %>>% table %>>% print
+}
+
+idref <- (dsd[[1L]] %>>% (varcode))
+
+
+## Get static information about the dataset
+get_static(
+    source = 'ECB',
+    dataset = 'ECB_AME1'
+) ->
+    ameco_static
+
+get_multiple_series(dataset = 'AME', series_id = "*")

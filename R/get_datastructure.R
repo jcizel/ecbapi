@@ -7,8 +7,22 @@
 ##'     data structure
 ##' @author Janko Cizel
 ##' @export
-get_datastructure <- function(url = "https://sdw-wsrest.ecb.europa.eu/service/datastructure/ESTAT/NA_SEC"){
- 
+get_datastructure <-
+    function(
+             source = 'ECB',
+             dataset = 'ECB_AME1'
+             ## url = "https://sdw-wsrest.ecb.europa.eu/service/datastructure/ESTAT/NA_SEC"
+             ){
+
+    sdw.root <- getOption('sdw.roots')[[getOption('sdw.loc')]]
+    message(sprintf("Note: The current setting is to access the '%s' version of the SDW. If you wish to switch the version (the two possiblities are 'internal' and 'external'), please specify the desired option via:\n\noptions(sdw.loc = 'internal/external')\n\nThe internal option gives access to a broader set of datasets but is available only from within the ECB network.",
+                    getOption('sdw.loc')))    
+
+    url = sprintf("%s/service/datastructure/%s/%s",
+                  sdw.root,
+                  source,
+                  dataset)
+        
   doc = read_xml(url)
   ns = doc %>>% xml_ns
   

@@ -9,10 +9,17 @@
 ##' @export
 get_data <- function(
     dataset = 'AME'
-){
-    url = sprintf("https://sdw-wsrest.ecb.europa.eu/service/data/%s",
-        dataset)
+    ){
+    sdw.root <- getOption('sdw.roots')[[getOption('sdw.loc')]]
+    
+    message(sprintf("Note: The current setting is to access the '%s' version of the SDW. If you wish to switch the version (the two possiblities are 'internal' and 'external'), please specify the desired option via:\n\noptions(sdw.loc = 'internal/external')\n\nThe internal option gives access to a broader set of datasets but is available only from within the ECB network.",
+            getOption('sdw.loc')))
+   
+    url = sprintf("%s/service/data/%s",
+                  sdw.root,
+                  dataset)
 
+    message(sprintf("Query:\n%s",url))
     download_file <- getURL(url,ssl.verifypeer = FALSE)
     doc <- xml2::read_xml(download_file)
     ns <- xml_ns(doc)

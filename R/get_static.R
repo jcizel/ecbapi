@@ -9,13 +9,17 @@ get_static <- function(
     source = 'ECB',
     dataset = 'ECB_IVF1'
 ){
-    sprintf(
-        "https://sdw-ecb-wsrest.ecb.de/service/datastructure/%s/%s/latest?references=children",
-        source,
-        dataset
-    ) ->
-        url
 
+    sdw.root <- getOption('sdw.roots')[[getOption('sdw.loc')]]
+    message(sprintf("Note: The current setting is to access the '%s' version of the SDW. If you wish to switch the version (the two possiblities are 'internal' and 'external'), please specify the desired option via:\n\noptions(sdw.loc = 'internal/external')\n\nThe internal option gives access to a broader set of datasets but is available only from within the ECB network.",
+                    getOption('sdw.loc')))    
+
+    sprintf('%s/service/datastructure/%s/%s/latest?references=children',
+            sdw.root,
+            source,
+            dataset) ->
+        url
+    
     doc <- xml2::read_xml(url)
     ns <- xml_ns(doc)
 

@@ -6,10 +6,15 @@
 ##' @export
 get_datasets <- function(
     source = 'ECB'
-){
-    sprintf('https://sdw-wsrest.ecb.europa.eu/service/datastructure/%s/all/latest',
+    ){
+    sdw.root <- getOption('sdw.roots')[[getOption('sdw.loc')]]
+    message(sprintf("Note: The current setting is to access the '%s' version of the SDW. If you wish to switch the version (the two possiblities are 'internal' and 'external'), please specify the desired option via:\n\noptions(sdw.loc = 'internal/external')\n\nThe internal option gives access to a broader set of datasets but is available only from within the ECB network.",
+                    getOption('sdw.loc')))    
+
+    sprintf('%s/service/datastructure/%s/all/latest',
+            sdw.root,
             source) ->
-                url
+        url
     
     doc = read_xml(url)
     ns = doc %>>% xml_ns
