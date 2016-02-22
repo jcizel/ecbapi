@@ -1,9 +1,11 @@
 ---
-title: "Installation"
-bg: blue
+title: ""
+bg: lightred
 color: white
 fa-icon: check-square-o
 ---
+
+# Installation #
 
 {% highlight r linenos=table %}
 install.packages('devtools') ## Only if you don't have it installed yet..
