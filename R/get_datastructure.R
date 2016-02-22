@@ -22,8 +22,17 @@ get_datastructure <-
                   sdw.root,
                   source,
                   dataset)
+
+
+    ## test url: url = "https://sdw-wsrest.ecb.europa.eu/service/data/AME"
+    ## download_file <- getURL(url,ssl.verifypeer = FALSE)
+    set_config(config(ssl_verifypeer = 0L))
+    GET(url,accept_xml()) %>>%
+        content(as = 'text',
+                encoding = 'UTF-8') ->
+        download_file
         
-  doc = read_xml(url)
+  doc = read_xml(download_file)
   ns = doc %>>% xml_ns
   
   doc %>>%

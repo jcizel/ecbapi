@@ -12,7 +12,8 @@ Depends:
     data.table,
     pipeR,
     rlist,
-    dplyr
+    dplyr,
+    httr
 License: What license is it under?
 LazyData: true
 Imports:
