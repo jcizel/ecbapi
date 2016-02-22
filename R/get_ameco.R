@@ -3,7 +3,6 @@
 ##' @param concept_id optionally, specify (part of) series code to look for
 ##' @return Returns a character vector of matching series.
 ##' @author Janko Cizel
-##' @export
 get_series_ameco <- function(concept_id = "ZUTN"){
   get_series(
     dataset = 'AME',

@@ -1,10 +1,9 @@
 ##' Get static information for the specified dataset.
 ##'
-##' @param source Name of the data source. Defautl is the ECB. 
+##' @param source Name of the data source. Defautl is the ECB.
 ##' @param dataset Name of the dataset.
 ##' @return A data.table with static information.
 ##' @author Janko Cizel
-##' @export
 get_static <- function(
     source = 'ECB',
     dataset = 'ECB_IVF1'

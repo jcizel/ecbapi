@@ -6,7 +6,6 @@
 ##' @param dataset Name of the dataset to download. 
 ##' @return A data.table containing the requested data.
 ##' @author Janko Cizel
-##' @export
 get_series <- function(
   dataset = 'AME',
   series_id = "......ZUTN"

@@ -1,0 +1,5 @@
+get_multiple_series <-
+``    function(
+             datasetId = 'ECB_AME1',
+             flowRef= substr(datasetId,5,7)
+             )

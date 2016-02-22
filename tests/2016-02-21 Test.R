@@ -52,25 +52,34 @@ cbind(
         ) 
 ) ->
     data
-   
+
+l <- list()
 for (x in idref){
     dsd[[2L]][[dsd[[1L]][varcode == x][['codelist']]]] ->
-        lookup
-    
+        lookup    
 (lookup %>>%
  setkey(id))[data %>>%
                  setkeyv(x)] %>>%
-    setnames(
-        old = c('id','name'),
-        new = c(x,sprintf("%s_label",x))
-    ) ->
-    o
-    
-    o ->
-        data
-
-    data[[sprintf("%s_label",x)]] %>>% table %>>% print
+    (name) ->
+    l[[x]]   
 }
+
+l %>>%
+    (dt~do.call('paste', c(dt,list(sep = '|')))) ->
+    label
+
+cbind(
+    data,
+    label = label
+) %>>%
+    select(
+        id,label,date,value
+    ) %>>%
+    mutate(
+        value = value %>>% as.numeric
+    ) ->
+    data_res
+
 
 idref <- (dsd[[1L]] %>>% (varcode))
 
