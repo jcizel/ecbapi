@@ -3,6 +3,7 @@
 export(ecbAvailability)
 export(ecbDataset)
 export(ecbReshape)
+export(ecbReshape2ts)
 export(ecbSeries)
 export(get_codelists)
 export(get_datasets)

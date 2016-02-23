@@ -5,7 +5,7 @@
 ##' @return data.table with info on the dataset dimensions
 ##' @author Janko Cizel
 ##' @export
-info <- function(data){
+info <- function(data, dim = NULL){
     if (!"dsd" %in% (attributes(data) %>>% names)){
         stop('Input dataset must be an output of "ecbDataset" or "ecbSeries" functions!')
     }
@@ -19,5 +19,28 @@ info <- function(data){
     message("This are the available dimension to expand upon (i.e. to specify them as 'colId'):")
     print(keyinfo)
 
-    return(keyinfo %>>% invisible)
+    result = list()
+    
+    if (!is.null(dim)){
+        dsd %>>% (codelists) %>>% (.[[keyinfo[varcode == dim][['codelist']]]]) %>>%
+            setkey(id) ->
+            lookup      
+        
+        data %>>% (.[[dim]]) %>>% table %>>%
+            as.data.table %>>%
+            rename(id = .) %>>%
+            setkey(id) %>>%
+            (lookup[.]) %>>%
+            arrange(-N) ->
+            diminfo
+
+        message(sprintf("Additiona information on the dimension %s", dim))
+        print(diminfo)
+        
+    }
+
+    result[['keyinfo']] <- keyinfo
+    result[['diminfo']] <- diminfo
+    
+    return(result %>>% invisible)
 }

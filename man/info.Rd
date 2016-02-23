@@ -4,7 +4,7 @@
 \alias{info}
 \title{info: get further information on the dataset}
 \usage{
-info(data)
+info(data, dim = NULL)
 }
 \arguments{
 \item{data}{data Input dataset, which must be an output of "ecbDataset" or "ecbSeries" functions!}
