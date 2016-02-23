@@ -8,6 +8,7 @@ Description: The package provides an access to the European Central Bank
 Depends:
     R (>= 3.1.1),
     RCurl,
+    curl,
     xml2,
     data.table,
     pipeR,
