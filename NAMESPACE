@@ -2,8 +2,10 @@
 
 export(ecbAvailability)
 export(ecbDataset)
+export(ecbReshape)
 export(ecbSeries)
 export(get_codelists)
 export(get_datasets)
 export(get_datastructure)
+export(info)
 export(wildcard_match)

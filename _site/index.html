@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ecbapi: R Interface to the ECB SDW data</title>
+	<meta name="keywords" content="ECB, SDW, API, data">
+	<meta name="description" content="This package provides an interface to the ECB Statistical Data Warehouse;">
+  <link rel="stylesheet" href="combo.css">
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+</head>
+<body>
+  <div id="main">
+
+    <nav><ul>
+      
+        
+        <li class="p-intro"><a href="#intro">home</a></li>
+      
+        
+        <li class="p-installation"><a href="#installation">Installation</a></li>
+      
+        
+        <li class="p-demo"><a href="#demo">Demo</a></li>
+      
+    </ul></nav>
+
+
+    
+      
+      <div id="intro" class="section p-intro">
+        
+        <div class="container center">
+          <p><span>
+<img src="img/euro.png" width="10%" /> 
+</span></p>
+
+<h1 class="text-red" id="ecbapi">ecbapi</h1>
+
+<h1 id="r-interface-to-the-ecb-sdw-datahttpsdwecbeuropaeu">R Interface to the <a href="http://sdw.ecb.europa.eu">ECB SDW data</a></h1>
+
+<h2 class="text-blue" id="by-janko-cizel">By Janko Cizel</h2>
+
+<!-- <span class="fa-stack subtlecircle" style="font-size:100px; background:rgba(255,166,0,0.1)"> -->
+<!--   <i class="fa fa-circle fa-stack-2x text-white"></i> -->
+<!--   <i class="fa fa-bicycle fa-stack-1x text-orange"></i> -->
+<!-- </span> -->
+
+<p><span id="forkongithub">
+  <a href="https://github.com/jcizel/ecbapi" class="bg-blue">
+    Fork me on GitHub
+  </a>
+</span></p>
+
+        </div>
+      </div>
+    
+      
+      <div id="installation" class="section p-installation">
+        
+        <div class="subtlecircle sectiondivider faicon">
+          <span class="fa-stack">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-check-square-o fa-stack-1x"></i>
+          </span>
+          <h5 class="icon-title">Installation</h5>
+        </div>
+        
+        <div class="container ">
+          <h1 id="installation">Installation</h1>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27</pre></td><td class="code"><pre><span class="n">install.packages</span><span class="p">(</span><span class="s1">'devtools'</span><span class="p">)</span> <span class="c1">## Only if you don't have it installed yet..
+</span><span class="n">devtools</span><span class="o">::</span><span class="n">install_github</span><span class="p">(</span><span class="s2">"jcizel/ecbapi"</span><span class="p">)</span>
+<span class="n">require</span><span class="p">(</span><span class="n">ecbapi</span><span class="p">)</span>
+
+
+<span class="c1">## THIS RETURNS THE FOLLOWING:
+## **********************************************************************
+## ECB SDW Downloader
+## By Janko Cizel, 2016. All rights reserved.
+## www.jankocizel.com
+## **********************************************************************
+## Default ECB SDW access point (external):
+## https://sdw-wsrest.ecb.europa.eu
+## **********************************************************************
+## To view all available datasets, use the following query:
+## ecbAvailability()
+## To download entire dataset, use the following query:
+## ecbDataset(datasetId = '[Input datasetId]')
+## To download only matching series from a dataset, use the following query:
+## ecbSeries(datasetId = '[Input datasetId]',pattern = '[series pattern]')
+## **********************************************************************
+## Thank you for using the package.
+## In case of errors or suggestions do not hesitate to contact me via:
+## www.jankocizel.com
+## **********************************************************************
+</span>
+<span class="n">END</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+
+        </div>
+      </div>
+    
+      
+      <div id="demo" class="section p-demo">
+        
+        <div class="subtlecircle sectiondivider faicon">
+          <span class="fa-stack">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-toggle-on fa-stack-1x"></i>
+          </span>
+          <h5 class="icon-title">Demo</h5>
+        </div>
+        
+        <div class="container ">
+          <h2 id="quick-demonstration">Quick Demonstration</h2>
+
+<figure class="highlight"><pre><code class="language-r" data-lang="r"><table style="border-spacing: 0"><tbody><tr><td class="gutter gl" style="text-align: right"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</pre></td><td class="code"><pre><span class="c1">## By default the package relies on the external ECB SDW site.
+## To change to the internal version, type the following:
+</span><span class="n">options</span><span class="p">(</span><span class="n">sdw.loc</span> <span class="o">=</span> <span class="s1">'internal'</span><span class="p">)</span>
+
+
+<span class="c1">## Step 1: View all available datasets:
+</span><span class="n">ecbAvailability</span><span class="p">()</span>
+<span class="c1">## THIS RETURNS THE FOLLOWING:
+## **********************************************************************
+## The following datasets are currently available via the ECB SDW API:
+##           datasetId                                        datasetName
+##  1:        ECB_AME1                                              AMECO
+##  2:        ECB_BKN1                               Banknotes Statistics
+##  3:        ECB_BLS1                     Bank Lending Survey Statistics
+##  4:        ECB_BOP1 Balance of Payments, I.I.P. and Reserve Assets Sta
+##  5:        ECB_BSI1                                Balance Sheet Items
+##  6:        ECB_CBD1            Statistics on Consolidated Banking Data
+##  7:        ECB_CBD2            Statistics on Consolidated Banking Data
+##  8:        ECB_CCP1           Central Counterparty Clearing Statistics
+##  9:        ECB_CPP3               Commercial property price statistics
+## 10:        ECB_DCM1                                           Dealogic
+## 11:         ECB_DD1                                       Derived Data
+## 12:        ECB_EON1                                Internal Eonia Rate
+## 13:        ECB_ESA1                            ESA95 National Accounts
+## 14:        ECB_EXR1                                     Exchange Rates
+## 15:        ECB_FCT1                                           Forecast
+## 16:        ECB_FMD2 Financial market data (not related to foreign exch
+## 17:        ECB_FVC1 Financial Vehicle Corporation Assets and Liabiliti
+## 18:        ECB_GST1                              Government Statistics
+## 19:        ECB_ICP1                         Indices of Consumer Prices
+## 20:        ECB_IFI1                Indicators of Financial Integration
+## 21:        ECB_ILM1                      Internal Liquidity Management
+## 22:        ECB_IRS1 Interest Rate Statistics (2004 EU Member States &amp;
+## 23:        ECB_IVF1                                   Investment Funds
+## 24:        ECB_LIG1                   Large Insurance Group Statistics
+## 25:        ECB_MFI1      MFI - List of monetary financial institutions
+## 26:        ECB_MIR1                       MFI Interest Rate Statistics
+## 27:        ECB_MMS1                                Money Market Survey
+## 28:        ECB_OFI1                     Other Financial Intermediaries
+## 29:        ECB_PSS1                     Payment and Settlement Systems
+## 30:        ECB_RAI1                         Risk Assessment Indicators
+## 31:        ECB_RIR2                              Retail Interest Rates
+## 32:        ECB_RPP1              Residential Property Price Indicators
+## 33:        ECB_RTD1 Real Time Database (context of Euro Area Business
+## 34:        ECB_SAFE Survey on the Access to Finance of Small and Mediu
+## 35:        ECB_SEC1                                         Securities
+## 36:        ECB_SEE1           Securities Exchange (trading) Statistics
+## 37:        ECB_SHS6                      Securities Holding Statistics
+## 38:        ECB_SSI1          Banking Structural Statistical Indicators
+## 39:        ECB_SSS1                   Securities Settlement Statistics
+## 40:        ECB_STP1        Short-Term European Paper Statistics (STEP)
+## 41:        ECB_STS1                              Short-Term Statistics
+## 42:        ECB_TGB1                                    Target Balances
+## 43:        ECB_TRD1                                     External Trade
+## 44:        ECB_WTS1 Overall, Import, Export and Double Export Weights
+## 45: EUROSTAT_BOP_01                       Eurostat Balance of Payments
+##           datasetId                                        datasetName
+## **********************************************************************
+## To download entire dataset, use the following query:
+## ecbDataset(datasetId = '[Input datasetId]')
+## To download only matching series from a dataset, use the following query:
+## ecbSeries(datasetId = '[Input datasetId]',pattern = '[series pattern]')
+## **********************************************************************
+## Thank you for using the package.
+## In case of errors or suggestions do not hesitate to contact me via:
+## www.jankocizel.com
+## **********************************************************************
+</span>
+
+<span class="c1">## Step 2: Download desired dataset. For example, if we want the AMECO db:
+</span><span class="n">ecbDataset</span><span class="p">(</span><span class="n">datasetId</span> <span class="o">=</span> <span class="s1">'ECB_AME1'</span><span class="p">)</span> <span class="o">-&gt;</span>
+   <span class="n">data</span>
+<span class="n">data</span> <span class="o">%&gt;&gt;%</span> <span class="n">str</span>
+<span class="c1">## THIS RETURNS THE FOLLOWING:
+## Classes ‘data.table’ and 'data.frame': 4184 obs. of  17 variables:
+##  $ id                    : chr  "A.AUT.1.0.0.0.OVGD" "A.AUT.1.0.0.0.OVGD" "A.AUT.1.0.0.0.OVGD" "A.AUT.1.0.0.0.OVGD" ...
+##  $ FREQ                  : chr  "A" "A" "A" "A" ...
+##  $ AME_REF_AREA          : chr  "AUT" "AUT" "AUT" "AUT" ...
+##  $ AME_TRANSFORMATION    : chr  "1" "1" "1" "1" ...
+##  $ AME_AGG_METHOD        : chr  "0" "0" "0" "0" ...
+##  $ AME_UNIT              : chr  "0" "0" "0" "0" ...
+##  $ AME_REFERENCE         : chr  "0" "0" "0" "0" ...
+##  $ AME_ITEM              : chr  "OVGD" "OVGD" "OVGD" "OVGD" ...
+##  $ FREQ.LAB              : chr  "Annual" "Annual" "Annual" "Annual" ...
+##  $ AME_REF_AREA.LAB      : chr  "Austria" "Austria" "Austria" "Austria" ...
+##  $ AME_TRANSFORMATION.LAB: chr  "Original data and moving arithmetic mean"
+##  $ AME_AGG_METHOD.LAB    : chr  "Standard aggregation" "Standard aggregation"
+##  $ AME_UNIT.LAB          : chr  "National currency" "National currency" "National currency" "National currency" ...
+##  $ AME_REFERENCE.LAB     : chr  "No reference" "No reference" "No reference" "No reference" ...
+##  $ AME_ITEM.LAB          : chr  "Gross domestic product at 2010 market prices" "Gross domestic product at 2010 market prices" "Gross domestic product at 2010 market prices" "Gross domestic product at 2010 market prices" ...
+##  $ date                  : chr  "1960" "1961" "1962" "1963" ...
+##  $ value                 : num  69.4 73.1 74.9 77.9 82.6 ...
+##  - attr(*, "sorted")= chr "AME_ITEM"
+##  - attr(*, ".internal.selfref")=&lt;externalptr&gt;
+##  - attr(*, "dsd")=List of 2)))
+</span>
+
+<span class="c1">## Step 2 (alternative): Download only matching series from the desired dataset.
+## For example, download all available ZUTN series in AMECO:
+</span><span class="n">ecbSeries</span><span class="p">(</span><span class="n">datasetId</span> <span class="o">=</span> <span class="s1">'ECB_AME1'</span><span class="p">,</span><span class="n">pattern</span> <span class="o">=</span> <span class="s2">"......ZUTN"</span><span class="p">)</span>
+
+
+<span class="c1">## Classes ‘data.table’ and 'data.frame': 1204 obs. of  17 variables:
+##  $ id                    : chr  "A.AUT.1.0.0.0.ZUTN" "A.AUT.1.0.0.0.ZUTN" "A.AUT.1.0.0.0.ZUTN" "A.AUT.1.0.0.0.ZUTN" ...
+##  $ FREQ                  : chr  "A" "A" "A" "A" ...
+##  $ AME_REF_AREA          : chr  "AUT" "AUT" "AUT" "AUT" ...
+##  $ AME_TRANSFORMATION    : chr  "1" "1" "1" "1" ...
+##  $ AME_AGG_METHOD        : chr  "0" "0" "0" "0" ...
+##  $ AME_UNIT              : chr  "0" "0" "0" "0" ...
+##  $ AME_REFERENCE         : chr  "0" "0" "0" "0" ...
+##  $ AME_ITEM              : chr  "ZUTN" "ZUTN" "ZUTN" "ZUTN" ...
+##  $ FREQ.LAB              : chr  "Annual" "Annual" "Annual" "Annual" ...
+##  $ AME_REF_AREA.LAB      : chr  "Austria" "Austria" "Austria" "Austria" ...
+##  $ AME_TRANSFORMATION.LAB: chr  "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" ...
+##  $ AME_AGG_METHOD.LAB    : chr  "Standard aggregation" "Standard aggregation" "Standard aggregation" "Standard aggregation" ...
+##  $ AME_UNIT.LAB          : chr  "National currency" "National currency" "National currency" "National currency" ...
+##  $ AME_REFERENCE.LAB     : chr  "No reference" "No reference" "No reference" "No reference" ...
+##  $ AME_ITEM.LAB          : chr  "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" ...
+##  $ date                  : chr  "1960" "1961" "1962" "1963" ...
+##  $ value                 : num  2.6 2 2 2.2 2.1 2 1.9 2 2.1 2.1 ...
+##  - attr(*, "sorted")= chr "AME_ITEM"
+##  - attr(*, ".internal.selfref")=&lt;externalptr&gt;
+##  - attr(*, "dsd")=List of 2
+</span>
+
+<span class="n">ecbSeries</span><span class="p">(</span><span class="n">datasetId</span> <span class="o">=</span> <span class="s1">'ECB_AME1'</span><span class="p">,</span><span class="n">pattern</span> <span class="o">=</span> <span class="s2">".FRA.....ZUTN"</span><span class="p">)</span> <span class="c1">## Only France
+## Classes ‘data.table’ and 'data.frame': 58 obs. of  17 variables:
+##  $ id                    : chr  "A.FRA.1.0.0.0.ZUTN" "A.FRA.1.0.0.0.ZUTN" "A.FRA.1.0.0.0.ZUTN" "A.FRA.1.0.0.0.ZUTN" ...
+##  $ FREQ                  : chr  "A" "A" "A" "A" ...
+##  $ AME_REF_AREA          : chr  "FRA" "FRA" "FRA" "FRA" ...
+##  $ AME_TRANSFORMATION    : chr  "1" "1" "1" "1" ...
+##  $ AME_AGG_METHOD        : chr  "0" "0" "0" "0" ...
+##  $ AME_UNIT              : chr  "0" "0" "0" "0" ...
+##  $ AME_REFERENCE         : chr  "0" "0" "0" "0" ...
+##  $ AME_ITEM              : chr  "ZUTN" "ZUTN" "ZUTN" "ZUTN" ...
+##  $ FREQ.LAB              : chr  "Annual" "Annual" "Annual" "Annual" ...
+##  $ AME_REF_AREA.LAB      : chr  "France" "France" "France" "France" ...
+##  $ AME_TRANSFORMATION.LAB: chr  "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" "Original data and moving arithmetic mean" ...
+##  $ AME_AGG_METHOD.LAB    : chr  "Standard aggregation" "Standard aggregation" "Standard aggregation" "Standard aggregation" ...
+##  $ AME_UNIT.LAB          : chr  "National currency" "National currency" "National currency" "National currency" ...
+##  $ AME_REFERENCE.LAB     : chr  "No reference" "No reference" "No reference" "No reference" ...
+##  $ AME_ITEM.LAB          : chr  "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" "Unemployment rate - total - Member States - definition EUROSTAT" ...
+##  $ date                  : chr  "1960" "1961" "1962" "1963" ...
+##  $ value                 : num  1.6 1.4 1.6 1.6 1.2 1.5 1.6 2.1 2.6 2.2 ...
+##  - attr(*, "sorted")= chr "AME_ITEM"
+##  - attr(*, ".internal.selfref")=&lt;externalptr&gt;
+##  - attr(*, "dsd")=List of 
+</span>
+<span class="n">END</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></figure>
+
+
+        </div>
+      </div>
+    
+
+
+    <div id="footer" class="section text-white">
+      <div class="container">
+        
+        
+<p>Janko Cizel
+—
+Design by Tim O’Brien <a href="http://t413.com/">t413.com</a></p>
+
+
+      </div>
+    </div>
+  </div>
+
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-45945017-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="site.js"></script>
+</html>
