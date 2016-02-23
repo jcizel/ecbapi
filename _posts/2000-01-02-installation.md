@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "Installation"
 bg: lightred
 color: white
 fa-icon: check-square-o
