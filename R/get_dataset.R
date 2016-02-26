@@ -13,7 +13,7 @@
 get_dataset <-
     function(
              datasetId = 'ECB_AME1',
-             flowRef= substr(datasetId,5,7)
+             flowRef= dataid2flowref(datasetId)
              ){
         ## Get desired dataset
         get_data(dataset = flowRef) ->

@@ -4,7 +4,7 @@
 \alias{get_dataset}
 \title{get_dataset: download entire dataset from ECB SDW}
 \usage{
-get_dataset(datasetId = "ECB_AME1", flowRef = substr(datasetId, 5, 7))
+get_dataset(datasetId = "ECB_AME1", flowRef = dataid2flowref(datasetId))
 }
 \arguments{
 \item{datasetId}{Dataset ID, typically in the following format:

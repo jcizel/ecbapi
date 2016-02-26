@@ -32,3 +32,19 @@ ecbDataset <-
 
 ## Test:
 ## ecbDataset(datasetId = 'ECB_AME1')
+
+##' @export
+dataid2flowref <- function(datasetId = 'ECB_AME1'){
+    gsub("(.+)_(.+)(_[0-9]+)$","\\2",datasetId) ->    
+        flowref
+
+    return(flowref)
+}
+
+##' @export
+dataid2provider <- function(datasetId = 'ECB_AME1'){
+    gsub("(.+)_(.+)(_[0-9]+)$","\\1",datasetId) ->    
+        flowref    
+
+    return(flowref)
+}
