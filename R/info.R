@@ -36,11 +36,10 @@ info <- function(data, dim = NULL){
 
         message(sprintf("Additiona information on the dimension %s", dim))
         print(diminfo)
-        
+        result[['diminfo']] <- diminfo        
     }
 
     result[['keyinfo']] <- keyinfo
-    result[['diminfo']] <- diminfo
     
     return(result %>>% invisible)
 }
