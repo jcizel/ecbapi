@@ -1,6 +1,6 @@
 ##' Download a specified dataset from the ECB SDW
 ##'
-##' @title ecbDataset: download entire dataset from the ECB SDW 
+##' @title ecbDataset: download entire dataset from the ECB SDW
 ##' @param datasetId Dataset ID, typically in the following format:
 ##'     EXT_[3-letter flowRef (see below)][#]
 ##' @return Downloaded dataset. It contains a DSD attribute, which can be useful
@@ -35,7 +35,7 @@ ecbDataset <-
 
 ##' @export
 dataid2flowref <- function(datasetId = 'ECB_AME1'){
-    gsub("(.+)_(.+)(_[0-9]+)$","\\2",datasetId) ->    
+    gsub("(.+)_(.+)(_?[0-9]+)$","\\2",datasetId) ->
         flowref
 
     return(flowref)
@@ -43,8 +43,8 @@ dataid2flowref <- function(datasetId = 'ECB_AME1'){
 
 ##' @export
 dataid2provider <- function(datasetId = 'ECB_AME1'){
-    gsub("(.+)_(.+)(_[0-9]+)$","\\1",datasetId) ->    
-        flowref    
+    gsub("(.+)_(.+)(_[0-9]+)$","\\1",datasetId) ->
+        flowref
 
     return(flowref)
 }
